@@ -1,0 +1,6 @@
+// This file is used to specify files and directories that should be ignored by Git.
+# Ignore environment files
+.env
+
+# Ignore node_modules directory
+node_modules/

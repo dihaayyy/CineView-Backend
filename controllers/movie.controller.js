@@ -18,22 +18,22 @@ exports.addMovie = async (req, res) => {
     await movie.save(); // ✅ simpan ke MongoDB
     res.status(201).json({ message: "Movie added successfully", movie });
   } catch (err) {
+    console.error("Add movie error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
 // GET /movies - Get all movies
 exports.getAllMovies = async (req, res) => {
- try {
-  const movies = await Movie.find();
-  if (movies.length === 0) {
-    return res.status(404).json({ error: "No movies found" });
+  try {
+    const movies = await Movie.find();
+    if (movies.length === 0) {
+      return res.status(404).json({ error: "No movies found" });
+    }
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
-  res.json(movies);
- } catch (err) {
-  res.status(500).json({ error: "Server error" });
-  
- }
 };
 
 // GET /movies/:id - Get a movie by ID

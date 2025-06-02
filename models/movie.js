@@ -11,11 +11,13 @@ const movieSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    genre: [{
-      type: String,
-      required: true,
-      trim: true,
-    }],
+    genre: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
     releaseYear: {
       type: Number,
       required: true,
@@ -29,10 +31,18 @@ const movieSchema = new mongoose.Schema(
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         rating: { type: Number, min: 1, max: 5 },
-        comment: { type: String, trim: true },
         createdAt: { type: Date, default: Date.now },
       },
     ],
+
+    comments: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        text: { type: String, required: true, trim: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+
     averageRating: {
       type: Number,
       default: 0,

@@ -37,55 +37,67 @@ exports.getAllMovies = async (req, res) => {
 };
 
 // GET /movies/:id - Get a movie by ID
-exports.getMoviebyId = (req, res) => {
-  const movieId = parseInt(req.params.id, 10);
-  const movie = movies.find((m) => m.id === movieId);
-  if (!movie) {
-    return res.status(404).json({ error: "Movie not found" });
+exports.getMoviebyId = async (req, res) => {
+  const movieId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(movieId)) {
+    return res.status(400).json({ error: "Invalid movie ID" });
   }
-  res.json(movie);
+
+  try {
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    res.json(movie);
+  } catch (err) {
+    console.error("Get movie by ID error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 // PUT /movies/:id - Update a movie by ID
-exports.updateMoviebyId = (req, res) => {
-  const movieId = parseInt(req.params.id, 10);
-  const movieIndex = movies.findIndex((m) => m.id === movieId);
-  if (movieIndex === -1) {
-    return res.status(404).json({ error: "Movie not found" });
+exports.updateMoviebyId = async (req, res) => {
+  const movieId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(movieId)) {
+    return res.status(400).json({ error: "Invalid movie ID" });
   }
-  const { title, description, genre, releaseYear, category, rating } = req.body;
-  if (
-    !title ||
-    !description ||
-    !genre ||
-    !releaseYear ||
-    !category ||
-    !rating
-  ) {
-    return res.status(400).json({ error: "All fields are required" });
+
+  try {
+    const updatedMovie = await Movie.findByIdAndUpdate(movieId, req.body, {
+      new: true, // Mengembalikan data sesudah update
+      runValidators: true, // Menjalankan validasi pada schema
+    });
+
+    if (!updatedMovie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    res.json({ message: "Movie updated successfully", movie: updatedMovie });
+  } catch (err) {
+    console.error("Update movie error:", err);
+    res.status(500).json({ error: "Server error" });
   }
-  const updatedMovie = {
-    id: movieId,
-    title,
-    description,
-    genre,
-    releaseYear,
-    category,
-    rating,
-  };
-  movies[movieIndex] = updatedMovie;
-  res.json({ message: "Movie updated successfully", movie: updatedMovie });
 };
 
 // DELETE /movies/:id - Delete a movie by ID
-exports.deleteMoviebyId = (req, res) => {
-  const movieId = parseInt(req.params.id, 10);
-  const movieIndex = movies.findIndex((m) => m.id === movieId);
-  if (movieIndex === -1) {
-    return res.status(404).json({ error: "Movie not found" });
+exports.deleteMoviebyId = async (req, res) => {
+  const movieId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(movieId)) {
+    return res.status(400).json({ error: "Invalid movie ID" });
   }
-  movies.splice(movieIndex, 1);
-  res.json({ message: "Movie deleted successfully" });
+
+  try {
+    const deletedMovie = await Movie.findByIdAndDelete(movieId);
+    if (!deletedMovie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    res.json({ message: "Movie deleted successfully", movie: deletedMovie });
+  } catch (err) {
+    console.error("Delete movie error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 exports.rateMovie = (req, res) => {

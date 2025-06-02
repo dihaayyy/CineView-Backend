@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Movie = require("../models/movie");
 
 // POST /movies - Add a new movie

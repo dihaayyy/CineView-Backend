@@ -1,6 +1,20 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
 
+// GET All /users
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("username email");
+    if (users.length === 0) {
+      return res.status(404).json({ error: "No users found" });
+    }
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+}
+
 /// GET /users by ID
 exports.getUserById = async (req, res) => {
   try {

@@ -17,6 +17,7 @@ exports.getAllUsers = async (req, res) => {
 
 /// GET /users by ID
 exports.getUserById = async (req, res) => {
+  const userId = req.params.id;
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid user ID" });
   }

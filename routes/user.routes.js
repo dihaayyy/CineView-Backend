@@ -5,6 +5,6 @@ const verifyToken = require("../middlewares/auth.middleware"); // Adjust the pat
 
 router.get("/", userController.getUserById); // Get all users
 router.get("/:id", userController.getUserById); // Get user by ID
-router.get("/profile", userController.getLoggedInUserProfile); // Get logged-in user profile
+router.get("/profile", verifyToken, userController.getLoggedInUserProfile); // Get logged-in user profile
 
 module.exports = router;

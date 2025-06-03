@@ -32,3 +32,21 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// GET Logged-in User Profile
+exports.getLoggedInUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select(
+      "username email favoriteMovies"
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error fetching logged-in user profile:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

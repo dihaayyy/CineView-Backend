@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config/config");
+const { JWT_SECRET } = require("../config/config");
 
 function verifyToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -15,7 +15,7 @@ function verifyToken(req, res, next) {
     return res.status(401).json({ error: "Access token is required" });
   }
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       console.error("Token verification failed:", err.message); // <-- Tambahkan ini
       return res.status(403).json({ error: "Invalid access token" });

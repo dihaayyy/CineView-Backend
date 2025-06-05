@@ -27,13 +27,15 @@ exports.addMovie = async (req, res) => {
 // GET /movies - Get all movies
 exports.getAllMovies = async (req, res) => {
   try {
-    const movies = await Movie.find();
-    if (movies.length === 0) {
-      return res.status(404).json({ error: "No movies found" });
-    }
-    res.json(movies);
+    const searchQuery = req.query.search || "";
+    const regex = new RegExp(searchQuery, "i"); // Case-insensitive regex
+    const movies = await Movie.find({
+      title: { $regex: regex },
+    });
+    res.status(200).json(movies);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Get all movies error:", err);
+    res.status(500).json({ error: "Failed to fetch movies." });
   }
 };
 

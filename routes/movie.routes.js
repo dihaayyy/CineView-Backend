@@ -6,6 +6,7 @@ router.post("/", movieController.addMovie);
 router.get("/", movieController.getAllMovies);
 router.get("/:id", movieController.getMoviebyId);
 router.put("/:id", movieController.updateMoviebyId);
+router.put("/:id/poster", movieController.updatePosterUrl);
 router.delete("/:id", movieController.deleteMoviebyId);
 router.post("/:id/rate", movieController.rateMovie);
 router.post("/:id/comment", movieController.commentOnMovie);

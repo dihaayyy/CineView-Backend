@@ -144,3 +144,26 @@ exports.commentOnMovie = (req, res) => {
   movie.comments.push(comment);
   res.json({ message: "Comment added successfully", movie });
 };
+
+exports.updatePosterUrl = async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const { posterUrl } = req.body;
+
+    const movie = await Movie.findByIdAndUpdate(
+      movieId,
+      { posterUrl },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Poster URL updated successfully",
+      movie,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "Failed to update poster URL",
+      details: err.message,
+    });
+  }
+};

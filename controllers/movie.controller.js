@@ -336,7 +336,8 @@ exports.getCommentsByMovieId = (req, res) => {
 
 exports.updateComment = async (req, res) => {
   try {
-    const { movieId, commentId } = req.params;
+    const movieId = req.params.id;
+    const commentId = req.params.commentId;
     const { text } = req.body;
     const userId = req.user.userId;
 

@@ -16,12 +16,12 @@ router.delete("/:id/ratings", verifyToken, movieController.deleteMovieRating);
 router.post("/:id/comment", verifyToken, movieController.commentOnMovie);
 router.get("/:id/comments", movieController.getCommentsByMovieId); // public
 router.put(
-  "/:movieId/comment/:commentId",
+  "/:id/comment/:commentId",
   verifyToken,
   movieController.updateComment
 );
 router.delete(
-  "/:movieId/comment/:commentId",
+  "/:id/comment/:commentId",
   verifyToken,
   movieController.deleteComment
 );

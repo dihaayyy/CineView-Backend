@@ -55,29 +55,29 @@ exports.getLoggedInUserProfile = async (req, res) => {
 // Adding Favorite Movie to User
 exports.addFavoriteMovie = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const movieId = req.body.movieId;
-    const user = await User.findById(userId);
+    const loggedInUserId = req.user.userId;
+    const targetUserId = req.params.userId;
 
-    if (!movieId) {
-      return res.status(400).json({ error: "Movie ID is required" });
+    if (loggedInUserId !== targetUserId) {
+      return res
+        .status(403)
+        .json({ error: "You can only modify your own favorites" });
     }
-    if (!mongoose.Types.ObjectId.isValid(movieId)) {
-      return res.status(400).json({ error: "Invalid movie ID" });
-    }
-    const updateUser = await User.findByIdAndUpdate(
-      userId,
-      { $addToSet: { favoriteMovies: movieId } },
-      { new: true }
-    );
-    if (!updateUser) {
+
+    const user = await User.findById(targetUserId).populate({
+      path: "favoriteMovies",
+      model: "Movie",
+    });
+
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // If Success
     res.status(200).json({
       success: true,
-      message: "Movie added to favorites successfully",
-      favoriteMovies: updateUser.favoriteMovies,
+      message: "Favorite movies fetched successfully",
+      favoriteMovies: user.favoriteMovies,
     });
   } catch (err) {
     console.error("Error adding favorite movie:", err);
@@ -102,35 +102,75 @@ exports.getFavoriteMovies = async (req, res) => {
   }
 };
 
-exports.deleteFavoriteMovies = async (req, res) => {
+exports.addFavoriteMovie = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const movieId = req.body.movieId;
-
-    if (!movieId) {
-      return res.status(400).json({ error: "Movie ID is required" });
+    const { userId: targetUserId } = req.params;
+    const { userId: loggedInUserId } = req.user;
+    if (loggedInUserId !== targetUserId) {
+      return res
+        .status(403)
+        .json({ error: "You can only modify your own favorites" });
     }
-    if (!mongoose.Types.ObjectId.isValid(movieId)) {
+
+    const { movieId } = req.body;
+    if (!movie || !mongoose.Types.ObjectId.isValid(movieId)) {
       return res.status(400).json({ error: "Invalid movie ID" });
     }
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $pull: { favoriteMovies: movieId } },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(
+      targetUserId,
+      { $addToSet: { favoriteMovies: movieId } },
+      { new: true, runValidators: true }
+    ).populate("favoriteMovies");
 
-    if (!user) {
+    if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // if Success
     res.status(200).json({
       success: true,
-      message: "Movie removed from favorites successfully",
-      favoriteMovies: user.favoriteMovies,
+      message: "Favorite movie added successfully",
+      data: updatedUser.favoriteMovies,
     });
   } catch (err) {
-    console.error("Error removing favorite movie:", err);
+    console.error("Error adding favorite movie:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.deleteFavoriteMovies = async (req, res) => {
+  try {
+    const { userId: targetUserId, movieId } = req.params;
+    const { userId: loggedInUserId } = req.user;
+
+    if (loggedInUserId !== targetUserId) {
+      return res
+        .status(403)
+        .json({ error: "You can only modify your own favorites" });
+    }
+    if (!movieId || !mongoose.Types.ObjectId.isValid(movieId)) {
+      return res.status(400).json({ error: "Invalid movie ID" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      targetUserId,
+      { $pull: { favoriteMovies: movieId } },
+      { new: true, runValidators: true }
+    ).populate("favoriteMovies");
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // if Success
+    res.status(200).json({
+      success: true,
+      message: "Favorite movie removed successfully",
+      data: updatedUser.favoriteMovies,
+    });
+  } catch (err) {
+    console.error("Error deleting favorite movie:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

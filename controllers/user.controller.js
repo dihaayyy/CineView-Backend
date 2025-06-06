@@ -87,8 +87,16 @@ exports.addFavoriteMovie = async (req, res) => {
 
 exports.getFavoriteMovies = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const user = await userfindById(userId).populate({
+    const { userId: targetUserId } = req.params;
+    const { userId: loggedInUserId } = req.user;
+
+    if (loggedInUserId !== targetUserId) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden. You can only view your own favorites." });
+    }
+
+    const user = await User.findById(userId).populate({
       path: "favoriteMovies",
       model: "Movie",
     });

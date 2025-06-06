@@ -6,8 +6,8 @@ const verifyToken = require("../middlewares/auth.middleware"); // Adjust the pat
 router.get("/all", userController.getUserById); // Get all users
 router.get("/profile", verifyToken, userController.getLoggedInUserProfile); // Get logged-in user profile
 router.get("/:id", userController.getUserById); // Get user by ID
-router.get("/:id/favorites", verifyToken, userController.getUserFavorites); // Get user's favorite movies
+router.get("/:id/favorites", verifyToken, userController.getFavoriteMovies); // Get user's favorite movies
 router.post("/:id/favorites", verifyToken, userController.addFavoriteMovie); // Add favorite movie to user
-router.delete("/id/favorites/:movieId", verifyToken, userController.deleteFavoriteMovie); // Remove favorite movie from user
+router.delete("/id/favorites/:movieId", verifyToken, userController.deleteFavoriteMovies); // Remove favorite movie from user
 
 module.exports = router;

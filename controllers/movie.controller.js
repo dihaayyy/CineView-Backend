@@ -271,7 +271,7 @@ exports.commentOnMovie = (req, res) => {
     return res.status(400).json({ error: "Comment is required" });
   }
 
-  const movie = movies.find((m) => m._id === movieId);
+  const movie = movie.find((m) => m._id === movieId);
 
   if (!movie) {
     return res.status(404).json({ error: "Movie not found" });
@@ -331,7 +331,7 @@ exports.updateComment = (req, res) => {
   const { text } = req.body;
   const userId = req.user.userId; // Ambil userId dari token
 
-  const movie = movies.find((m) => m._id === movieId);
+  const movie = movie.find((m) => m._id === movieId);
   if (!movie) {
     return res.status(404).json({ error: "Movie not found" });
   }
@@ -360,7 +360,7 @@ exports.deleteComment = (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.user.userId; // Ambil userId dari token
 
-  const movie = movies.find((m) => m._id === movieId);
+  const movie = movie.find((m) => m._id === movieId);
   if (!movie) {
     return res.status(404).json({ error: "Movie not found" });
   }

@@ -14,7 +14,7 @@ router.post("/:id/ratings", verifyToken, movieController.addMovieRatings);
 router.put("/:id/ratings", verifyToken, movieController.updateMovieRating);
 router.delete("/:id/ratings", verifyToken, movieController.deleteMovieRating);
 router.post("/:id/comment", verifyToken, movieController.commentOnMovie);
-router.get("/:id/comments", movieController.getCommentsByMovie); // public
+router.get("/:id/comments", movieController.getCommentsByMovieId); // public
 router.put(
   "/:movieId/comment/:commentId",
   verifyToken,

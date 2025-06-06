@@ -341,6 +341,10 @@ exports.updateComment = async (req, res) => {
     const { text } = req.body;
     const userId = req.user.userId;
 
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "Comment text is required" });
+    }
+
     const movie = await Movie.findById(movieId);
     if (!movie) return res.status(404).json({ error: "Movie not found" });
 

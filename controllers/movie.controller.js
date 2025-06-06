@@ -206,18 +206,16 @@ exports.updateMovieRating = async (req, res) => {
     const movie = await Movie.findById(movieId);
     if (!movie) return res.status(404).json({ error: "Movie not found" });
 
-    const existingRating = movie.ratings.find(
-      (r) => r.userId.toString() === userId
-    );
-    if (!existingRating) {
+    const existing = movie.ratings.find((r) => r.userId.toString() === userId);
+    if (!existing) {
       return res.status(404).json({ error: "User rating not found" });
     }
 
     existing.rating = rating;
+    existing.createdAt = new Date(); // Update timestamp
 
-    movie.averageRating =
-      movie.ratings.reduce((sum, r) => sum + r.rating, 0) /
-      movie.ratings.length;
+    const sum = movie.ratings.reduce((acc, r) => acc + r.rating, 0);
+    movie.averageRating = sum / movie.ratings.length;
 
     await movie.save();
     res.json({ message: "Rating updated successfully", movie });

@@ -11,16 +11,19 @@ router.put("/:id/poster", movieController.updatePosterUrl);
 router.delete("/:id", movieController.deleteMoviebyId);
 router.get("/:id/ratings", movieController.getRatingsByMovieId);
 router.post("/:id/ratings", verifyToken, movieController.addMovieRatings);
+router.put("/:id/ratings", verifyToken, movieController.updateMovieRating);
+router.delete("/:id/ratings", verifyToken, movieController.deleteMovieRating);
+router.post("/:id/comment", verifyToken, movieController.commentOnMovie);
+router.get("/:id/comments", movieController.getCommentsByMovie); // public
 router.put(
-  "/:id/ratings",
+  "/:movieId/comment/:commentId",
   verifyToken,
-  movieController.updateMovieRating
+  movieController.updateComment
 );
 router.delete(
-  "/:id/ratings",
+  "/:movieId/comment/:commentId",
   verifyToken,
-  movieController.deleteMovieRating
+  movieController.deleteComment
 );
-router.post("/:id/comment", movieController.commentOnMovie);
 
 module.exports = router;

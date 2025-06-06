@@ -262,21 +262,126 @@ exports.deleteMovieRating = async (req, res) => {
 
 exports.commentOnMovie = (req, res) => {
   const { comment } = req.body;
-  const movieId = parseInt(req.params.id, 10);
-  const movie = movies.find((m) => m.id === movieId);
+  const movieId = req.params.id;
+  const userId = req.user.userId; // Ambil userId dari token
+  const userName = req.user.name; // Ambil nama user dari token
+
+  // Validasi input
+  if (!comment || typeof comment !== "string") {
+    return res.status(400).json({ error: "Comment is required" });
+  }
+
+  const movie = movies.find((m) => m._id === movieId);
+
   if (!movie) {
     return res.status(404).json({ error: "Movie not found" });
   }
-  if (!comment || typeof comment !== "string") {
-    return res
-      .status(400)
-      .json({ error: "Comment is required and must be a string" });
-  }
-  if (!movie.comments) {
+
+  // Buat komentar baru
+  const newComment = {
+    userId,
+    userName,
+    comment,
+    createdAt: new Date(),
+  };
+
+  // Inisialisasi array untuk komentar, jika belum ada
+  if (!Array.isArray(movie.comments)) {
     movie.comments = [];
   }
-  movie.comments.push(comment);
-  res.json({ message: "Comment added successfully", movie });
+
+  // Tambahkan komentar baru ke array komentar
+  movie.comments.push(newComment);
+  return res.status(200).json({
+    message: "Comment added successfully",
+    comment: newComment,
+    movieId: movie._id,
+  });
+};
+
+exports.getCommentsByMovieId = (req, res) => {
+  const movieId = req.params.id;
+
+  // Validasi ID film
+  if (!mongoose.Types.ObjectId.isValid(movieId)) {
+    return res.status(400).json({ error: "Invalid movie ID" });
+  }
+
+  // Temukan film berdasarkan ID
+  Movie.findById(movieId)
+    .select("comments") // Hanya ambil field comments
+    .then((movie) => {
+      if (!movie) {
+        return res.status(404).json({ error: "Movie not found" });
+      }
+      res.status(200).json({
+        movieId: movie._id,
+        comments: movie.comments || [],
+      });
+    })
+    .catch((err) => {
+      console.error("Get comments error:", err);
+      res.status(500).json({ error: "Server error" });
+    });
+};
+
+exports.updateComment = (req, res) => {
+  const movieId = req.params.movieId;
+  const commentId = req.params.commentId;
+  const { text } = req.body;
+  const userId = req.user.userId; // Ambil userId dari token
+
+  const movie = movies.find((m) => m._id === movieId);
+  if (!movie) {
+    return res.status(404).json({ error: "Movie not found" });
+  }
+  const comment = movie.comments?.find((c) => c.id === commentId);
+  if (!comment) {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+  if (comment.userId !== userId) {
+    return res
+      .status(403)
+      .json({ error: "You can only edit your own comments" });
+  }
+
+  comment.text = text;
+  comment.updatedAt = new Date();
+
+  return res.status(200).json({
+    message: "Comment updated successfully",
+    comment,
+    movieId: movie._id,
+  });
+};
+
+exports.deleteComment = (req, res) => {
+  const movieId = req.params.movieId;
+  const commentId = req.params.commentId;
+  const userId = req.user.userId; // Ambil userId dari token
+
+  const movie = movies.find((m) => m._id === movieId);
+  if (!movie) {
+    return res.status(404).json({ error: "Movie not found" });
+  }
+
+  const commentIndex = movie.comments?.findIndex((c) => c.id === commentId);
+
+  if (commentIndex === -1 || commentIndex === undefined) {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+  const comment = movie.comments[commentIndex];
+  if (comment.userId !== userId) {
+    return res
+      .status(403)
+      .json({ error: "You can only delete your own comments" });
+  }
+
+  movie.comments.splice(commentIndex, 1);
+  return res.status(200).json({
+    message: "Comment deleted successfully",
+    movieId: movie._id,
+  });
 };
 
 exports.updatePosterUrl = async (req, res) => {

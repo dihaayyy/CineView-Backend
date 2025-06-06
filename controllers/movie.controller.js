@@ -103,12 +103,16 @@ exports.deleteMoviebyId = async (req, res) => {
   }
 };
 
-exports.rateMovie = (req, res) => {
+exports.addMovieRatings = async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.user?.id || req.body.userId; // Ambil userId dari token atau body
   const { rating } = req.body;
-  const movieId = parseInt(req.params.id, 10);
-  const movie = movies.find((m) => m.id === movieId);
-  if (!movie) {
-    return res.status(404).json({ error: "Movie not found" });
+
+  if (
+    !mongoose.Types.ObjectId.isValid(movieId) ||
+    !mongoose.Types.ObjectId.isValid(userId)
+  ) {
+    return res.status(400).json({ error: "Invalid movie or user ID" });
   }
   if (typeof rating !== "number" || rating < 1 || rating > 5) {
     return res
@@ -116,15 +120,70 @@ exports.rateMovie = (req, res) => {
       .json({ error: "Rating must be a number between 1 and 5" });
   }
 
-  // Tambah rating ke array ratings
-  movie.ratings.push(rating);
+  try {
+    const movie = await Movie.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+    const existingRatingIndex = movie.ratings.findIndex(
+      (r) => r.userId.toString() === userId
+    );
 
-  // Hitung rata-rata rating yang ada
-  const sum = movie.ratings.reduce((acc, cur) => acc + cur, 0);
-  movie.averageRating = sum / movie.ratings.length;
+    if (existingRatingIndex !== -1) {
+      // Update rating
+      movie.ratings[existingRatingIndex].rating = rating;
+    } else {
+      // tambah rating baru
+      movie.ratings.push({ userId, rating });
+    }
 
-  res.json({ message: "Rating updated successfully", movie });
+    const total = movie.ratings.reduce((sum, r) => sum + r.rating, 0);
+    movie.averageRating = total / movie.ratings.length;
+
+    await movie.save();
+    res.status(200).json({
+      message: "Rating added/updated successfully",
+      movie,
+    });
+  } catch (err) {
+    console.error("Add movie rating error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
+
+exports.getRatingsByMovieId = async (req, res) => {
+  const movieId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(movieId)) {
+    return res.status(400).json({ error: "Invalid movie ID" });
+  }
+
+  try {
+    const movie = await Movie.findById(movieId).populate(
+      "ratings.userId",
+      "name email"
+    );
+
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    res.status(200).json({
+      movieId: movie._id,
+      title: movie.title,
+      averageRating: movie.averageRating,
+      totalRatings: movie.ratings.length,
+      ratings: movie.ratings.map((r) => ({
+        user: r.userId, // ini akan otomatis resolve jadi nama & email jika pakai populate
+        rating: r.rating,
+      })),
+    });
+  } catch (err) {
+    console.error("Get ratings by movie ID error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 
 exports.commentOnMovie = (req, res) => {
   const { comment } = req.body;

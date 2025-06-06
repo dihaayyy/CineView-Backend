@@ -105,7 +105,7 @@ exports.deleteMoviebyId = async (req, res) => {
 
 exports.addMovieRatings = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user.id; // Ambil userId dari token atau body
+  const userId = req.user.userId; // Ambil userId dari token atau body
   const { rating } = req.body;
 
   if (
@@ -188,7 +188,7 @@ exports.getRatingsByMovieId = async (req, res) => {
 
 exports.updateMovieRating = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user.id; // Ambil userId dari token
+  const userId = req.user.userId; // Ambil userId dari token
   const { rating } = req.body;
 
   if (
@@ -229,7 +229,7 @@ exports.updateMovieRating = async (req, res) => {
 
 exports.deleteMovieRating = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user.id; // Ambil userId dari token
+  const userId = req.user.userId; // Ambil userId dari token
 
   if (
     !mongoose.Types.ObjectId.isValid(movieId) ||

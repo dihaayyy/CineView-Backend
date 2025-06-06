@@ -63,7 +63,7 @@ exports.getFavoriteMovies = async (req, res) => {
     }
 
     // Hanya boleh akses favorit diri sendiri
-    if (loggedInUserId !== targetUserId) {
+    if (String(loggedInUserId) !== String(targetUserId)) {
       return res
         .status(403)
         .json({ error: "Forbidden. You can only view your own favorites." });
@@ -109,7 +109,7 @@ exports.addFavoriteMovie = async (req, res) => {
   try {
     const { userId: targetUserId } = req.params;
     const loggedInUserId = req.user.id;
-    if (loggedInUserId !== targetUserId) {
+    if (String(loggedInUserId) !== String(targetUserId)) {
       return res
         .status(403)
         .json({ error: "You can only modify your own favorites" });
@@ -147,7 +147,7 @@ exports.deleteFavoriteMovies = async (req, res) => {
     const { userId: targetUserId, movieId } = req.params;
     const loggedInUserId = req.user.id;
 
-    if (loggedInUserId !== targetUserId) {
+    if (String(loggedInUserId) !== String(targetUserId)) {
       return res
         .status(403)
         .json({ error: "You can only modify your own favorites" });

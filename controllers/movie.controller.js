@@ -266,7 +266,7 @@ exports.commentOnMovie = async (req, res) => {
     const { comment } = req.body;
     const movieId = req.params.id;
     const userId = req.user.userId;
-    const userName = req.user.name || req.user.username || "Unknown";
+    const username = req.user.username;
 
     if (!comment || typeof comment !== "string") {
       return res.status(400).json({ error: "Comment is required" });
@@ -282,7 +282,7 @@ exports.commentOnMovie = async (req, res) => {
     const newComment = {
       id: uuidv4(),
       userId,
-      userName,
+      username,
       text: comment,
       createdAt: new Date(),
     };
@@ -370,7 +370,8 @@ exports.updateComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
   try {
-    const { movieId, commentId } = req.params;
+    const movieId = req.params.id;
+    const commentId = req.params.commentId;
     const userId = req.user.userId; // userId dari token
 
     // Cari movie berdasarkan ID

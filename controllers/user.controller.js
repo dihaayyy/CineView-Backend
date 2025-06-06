@@ -57,25 +57,47 @@ exports.getFavoriteMovies = async (req, res) => {
     const { userId: targetUserId } = req.params;
     const loggedInUserId = req.user.id;
 
+    // Cek validitas ObjectId
+    if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    // Hanya boleh akses favorit diri sendiri
     if (loggedInUserId !== targetUserId) {
       return res
         .status(403)
         .json({ error: "Forbidden. You can only view your own favorites." });
     }
 
-    const user = await User.findById(targetUserId).populate({
-      path: "favoriteMovies",
-      model: "Movie",
-    });
+    // Ambil user terlebih dulu
+    const user = await User.findById(targetUserId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Debug isi favorit sebelum populate
+    console.log("Favorite Movie IDs:", user.favoriteMovies);
+
+    // Populate movie details
+    const populatedUser = await user.populate("favoriteMovies");
+
+    // Jika kosong
+    if (
+      !populatedUser.favoriteMovies ||
+      populatedUser.favoriteMovies.length === 0
+    ) {
+      return res.status(200).json({
+        success: true,
+        message: "No favorite movies found.",
+        data: [],
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Favorite movies fetched successfully",
-      data: user.favoriteMovies,
+      data: populatedUser.favoriteMovies,
     });
   } catch (err) {
     console.error("Error fetching favorite movies:", err);

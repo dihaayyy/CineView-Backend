@@ -88,7 +88,7 @@ exports.addFavoriteMovie = async (req, res) => {
 exports.getFavoriteMovies = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const user = await userFindById(userId).populate({
+    const user = await userfindById(userId).populate({
       path: "favoriteMovies",
       model: "Movie",
     });

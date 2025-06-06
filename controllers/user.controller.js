@@ -108,7 +108,7 @@ exports.getFavoriteMovies = async (req, res) => {
 exports.addFavoriteMovie = async (req, res) => {
   try {
     const { userId: targetUserId } = req.params;
-    const { userId: loggedInUserId } = req.user;
+    const loggedInUserId = req.user.id;
     if (loggedInUserId !== targetUserId) {
       return res
         .status(403)
@@ -145,7 +145,7 @@ exports.addFavoriteMovie = async (req, res) => {
 exports.deleteFavoriteMovies = async (req, res) => {
   try {
     const { userId: targetUserId, movieId } = req.params;
-    const { userId: loggedInUserId } = req.user;
+    const loggedInUserId = req.user.id;
 
     if (loggedInUserId !== targetUserId) {
       return res

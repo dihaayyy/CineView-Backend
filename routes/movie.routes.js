@@ -10,14 +10,14 @@ router.put("/:id", movieController.updateMoviebyId);
 router.put("/:id/poster", movieController.updatePosterUrl);
 router.delete("/:id", movieController.deleteMoviebyId);
 router.get("/:id/ratings", movieController.getRatingsByMovieId);
-router.post("/movies/:id/rating", verifyToken, movieController.addMovieRatings);
+router.post("/movies/:id/ratings", verifyToken, movieController.addMovieRatings);
 router.put(
-  "/movies/:id/rating",
+  "/movies/:id/ratings",
   verifyToken,
   movieController.updateMovieRating
 );
 router.delete(
-  "/movies/:id/rating",
+  "/movies/:id/ratings",
   verifyToken,
   movieController.deleteMovieRating
 );

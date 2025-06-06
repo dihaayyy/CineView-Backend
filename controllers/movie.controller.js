@@ -387,7 +387,7 @@ exports.deleteComment = async (req, res) => {
     }
 
     // Cek apakah komentar milik user yang login
-    if (movie.comments[commentIndex].userId !== userId) {
+    if (movie.comments[commentIndex].userId.toString() !== userId) {
       return res
         .status(403)
         .json({ error: "You can only delete your own comments" });

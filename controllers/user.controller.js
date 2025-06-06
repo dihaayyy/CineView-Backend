@@ -88,7 +88,7 @@ exports.addFavoriteMovie = async (req, res) => {
 exports.getFavoriteMovies = async (req, res) => {
   try {
     const { userId: targetUserId } = req.params;
-    const { userId: loggedInUserId } = req.user;
+    const loggedInUserId = req.user.id;
 
     if (loggedInUserId !== targetUserId) {
       return res
@@ -104,6 +104,12 @@ exports.getFavoriteMovies = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Favorite movies fetched successfully",
+      data: user.favoriteMovies,
+    });
   } catch (err) {
     console.error("Error fetching favorite movies:", err);
     res.status(500).json({ error: "Server error" });

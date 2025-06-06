@@ -184,6 +184,78 @@ exports.getRatingsByMovieId = async (req, res) => {
   }
 };
 
+exports.updateMovieRating = async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.user?.id || req.body.userId;
+  const { rating } = req.body;
+
+  if (
+    !mongoose.Types.ObjectId.isValid(movieId) ||
+    !mongoose.Types.ObjectId.isValid(userId)
+  ) {
+    return res.status(400).json({ error: "Invalid movie ID or user ID" });
+  }
+
+  if (typeof rating !== "number" || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Rating must be between 1 and 5" });
+  }
+
+  try {
+    const movie = await Movie.findById(movieId);
+    if (!movie) return res.status(404).json({ error: "Movie not found" });
+
+    const existing = movie.ratings.find((r) => r.userId.toString() === userId);
+    if (!existing)
+      return res.status(404).json({ error: "User rating not found" });
+
+    existing.rating = rating;
+
+    movie.averageRating =
+      movie.ratings.reduce((sum, r) => sum + r.rating, 0) /
+      movie.ratings.length;
+
+    await movie.save();
+    res.json({ message: "Rating updated successfully", movie });
+  } catch (err) {
+    console.error("Update rating error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.deleteMovieRating = async (req, res) => {
+  const movieId = req.params.id;
+  const userId = req.user?.id || req.body.userId;
+
+  if (
+    !mongoose.Types.ObjectId.isValid(movieId) ||
+    !mongoose.Types.ObjectId.isValid(userId)
+  ) {
+    return res.status(400).json({ error: "Invalid movie ID or user ID" });
+  }
+
+  try {
+    const movie = await Movie.findById(movieId);
+    if (!movie) return res.status(404).json({ error: "Movie not found" });
+
+    const originalLength = movie.ratings.length;
+    movie.ratings = movie.ratings.filter((r) => r.userId.toString() !== userId);
+
+    if (movie.ratings.length === originalLength) {
+      return res.status(404).json({ error: "User rating not found" });
+    }
+
+    // Hitung ulang averageRating
+    const total = movie.ratings.reduce((sum, r) => sum + r.rating, 0);
+    movie.averageRating =
+      movie.ratings.length > 0 ? total / movie.ratings.length : 0;
+
+    await movie.save();
+    res.json({ message: "Rating deleted successfully", movie });
+  } catch (err) {
+    console.error("Delete rating error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 exports.commentOnMovie = (req, res) => {
   const { comment } = req.body;

@@ -13,15 +13,15 @@ router.get("/:id/ratings", movieController.getRatingsByMovieId);
 router.post("/:id/ratings", verifyToken, movieController.addMovieRatings);
 router.put("/:id/ratings", verifyToken, movieController.updateMovieRating);
 router.delete("/:id/ratings", verifyToken, movieController.deleteMovieRating);
-router.post("/:id/comment", verifyToken, movieController.commentOnMovie);
+router.post("/:id/comments", verifyToken, movieController.commentOnMovie);
 router.get("/:id/comments", movieController.getCommentsByMovieId); // public
 router.put(
-  "/:id/comment/:commentId",
+  "/:id/comments/:commentId",
   verifyToken,
   movieController.updateComment
 );
 router.delete(
-  "/:id/comment/:commentId",
+  "/:id/comments/:commentId",
   verifyToken,
   movieController.deleteComment
 );

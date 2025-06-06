@@ -59,7 +59,6 @@ exports.addFavoriteMovie = async (req, res) => {
     const movieId = req.body.movieId;
     const user = await User.findById(userId);
 
-    
     if (!movieId) {
       return res.status(400).json({ error: "Movie ID is required" });
     }
@@ -80,12 +79,11 @@ exports.addFavoriteMovie = async (req, res) => {
       message: "Movie added to favorites successfully",
       favoriteMovies: updateUser.favoriteMovies,
     });
-
   } catch (err) {
     console.error("Error adding favorite movie:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
 
 exports.getFavoriteMovies = async (req, res) => {
   try {
@@ -102,4 +100,37 @@ exports.getFavoriteMovies = async (req, res) => {
     console.error("Error fetching favorite movies:", err);
     res.status(500).json({ error: "Server error" });
   }
-}
+};
+
+exports.deleteFavoriteMovies = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const movieId = req.body.movieId;
+
+    if (!movieId) {
+      return res.status(400).json({ error: "Movie ID is required" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(movieId)) {
+      return res.status(400).json({ error: "Invalid movie ID" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { favoriteMovies: movieId } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Movie removed from favorites successfully",
+      favoriteMovies: user.favoriteMovies,
+    });
+  } catch (err) {
+    console.error("Error removing favorite movie:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

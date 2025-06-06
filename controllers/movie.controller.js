@@ -338,10 +338,10 @@ exports.updateComment = async (req, res) => {
   try {
     const movieId = req.params.id;
     const commentId = req.params.commentId;
-    const { text } = req.body;
+    const { comment: commentText } = req.body;
     const userId = req.user.userId;
 
-    if (!text || typeof text !== "string") {
+    if (!commentText || typeof commentText !== "string") {
       return res.status(400).json({ error: "Comment text is required" });
     }
 
@@ -357,7 +357,7 @@ exports.updateComment = async (req, res) => {
         .json({ error: "You can only edit your own comments" });
     }
 
-    comment.text = text;
+    comment.text = commentText;
     comment.updatedAt = new Date();
 
     await movie.save();

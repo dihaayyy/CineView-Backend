@@ -105,7 +105,7 @@ exports.deleteMoviebyId = async (req, res) => {
 
 exports.addMovieRatings = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user?.id || req.body.userId; // Ambil userId dari token atau body
+  const userId = req.user.id; // Ambil userId dari token atau body
   const { rating } = req.body;
 
   if (
@@ -125,20 +125,22 @@ exports.addMovieRatings = async (req, res) => {
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }
-    const existingRatingIndex = movie.ratings.findIndex(
+
+    const existingRating = movie.ratings.find(
       (r) => r.userId.toString() === userId
     );
-
-    if (existingRatingIndex !== -1) {
-      // Update rating
-      movie.ratings[existingRatingIndex].rating = rating;
-    } else {
-      // tambah rating baru
-      movie.ratings.push({ userId, rating });
+    if (existingRating) {
+      return res.status(400).json({
+        error: "User has already rated this movie",
+        existingRating: existingRating.rating,
+      });
     }
 
-    const total = movie.ratings.reduce((sum, r) => sum + r.rating, 0);
-    movie.averageRating = total / movie.ratings.length;
+    movie.ratings.push({ userId, rating });
+
+    movie.averageRating =
+      movie.ratings.reduce((sum, r) => sum + r.rating, 0) /
+      movie.ratings.length;
 
     await movie.save();
     res.status(200).json({
@@ -186,7 +188,7 @@ exports.getRatingsByMovieId = async (req, res) => {
 
 exports.updateMovieRating = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user?.id || req.body.userId;
+  const userId = req.user.id; // Ambil userId dari token
   const { rating } = req.body;
 
   if (
@@ -204,9 +206,12 @@ exports.updateMovieRating = async (req, res) => {
     const movie = await Movie.findById(movieId);
     if (!movie) return res.status(404).json({ error: "Movie not found" });
 
-    const existing = movie.ratings.find((r) => r.userId.toString() === userId);
-    if (!existing)
+    const existingRating = movie.ratings.find(
+      (r) => r.userId.toString() === userId
+    );
+    if (!existingRating) {
       return res.status(404).json({ error: "User rating not found" });
+    }
 
     existing.rating = rating;
 
@@ -224,7 +229,7 @@ exports.updateMovieRating = async (req, res) => {
 
 exports.deleteMovieRating = async (req, res) => {
   const movieId = req.params.id;
-  const userId = req.user?.id || req.body.userId;
+  const userId = req.user.id; // Ambil userId dari token
 
   if (
     !mongoose.Types.ObjectId.isValid(movieId) ||

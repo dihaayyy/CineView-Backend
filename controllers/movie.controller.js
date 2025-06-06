@@ -347,7 +347,7 @@ exports.updateComment = async (req, res) => {
     const comment = movie.comments.find((c) => c.id === commentId);
     if (!comment) return res.status(404).json({ error: "Comment not found" });
 
-    if (comment.userId !== userId) {
+    if (comment.userId.toString() !== userId) {
       return res
         .status(403)
         .json({ error: "You can only edit your own comments" });

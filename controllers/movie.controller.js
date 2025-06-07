@@ -32,7 +32,11 @@ exports.getAllMovies = async (req, res) => {
     const regex = new RegExp(searchQuery, "i"); // Case-insensitive regex
     const movies = await Movie.find({
       title: { $regex: regex },
+    }).populate({
+      path: "comments.userId",
+      select: "username",
     });
+
     res.status(200).json(movies);
   } catch (err) {
     console.error("Get all movies error:", err);

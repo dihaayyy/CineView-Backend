@@ -85,12 +85,11 @@ exports.updateUsername = async (req, res) => {
 exports.updatePassword = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { currentPassword, newPassword } = req.body;
+    const { password } = req.body;
 
-    if (!currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ error: "Current and new passwords are required" });
+    // Validasi hanya untuk password baru
+    if (!password) {
+      return res.status(400).json({ error: "New password is required" });
     }
 
     const user = await User.findById(userId);
@@ -98,12 +97,7 @@ exports.updatePassword = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Current password is incorrect" });
-    }
-
-    user.password = newPassword;
+    user.password = password; // Model Mongoose akan melakukan hashing saat .save()
     await user.save();
 
     res.status(200).json({

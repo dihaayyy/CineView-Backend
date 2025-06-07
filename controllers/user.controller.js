@@ -54,7 +54,7 @@ exports.getLoggedInUserProfile = async (req, res) => {
 
 exports.getFavoriteMovies = async (req, res) => {
   try {
-    const { userId: targetUserId } = req.params;
+    const targetUserId = req.params.id;
     const loggedInUserId = req.user.id;
 
     // Cek validitas ObjectId

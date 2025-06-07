@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
 // GET All /users
 exports.getAllUsers = async (req, res) => {
@@ -97,7 +98,11 @@ exports.updatePassword = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    user.password = password; // Model Mongoose akan melakukan hashing saat .save()
+    // Manual hashing
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user.password = hashedPassword; // Model Mongoose akan melakukan hashing saat .save()
     await user.save();
 
     res.status(200).json({

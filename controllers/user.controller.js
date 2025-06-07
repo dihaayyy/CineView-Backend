@@ -107,8 +107,8 @@ exports.getFavoriteMovies = async (req, res) => {
 
 exports.addFavoriteMovie = async (req, res) => {
   try {
-    const { userId: targetUserId } = req.params;
-    const loggedInUserId = req.user.id;
+    const targetUserId = req.params.id;
+    const loggedInUserId = req.user.UserId;
     if (String(loggedInUserId) !== String(targetUserId)) {
       return res
         .status(403)

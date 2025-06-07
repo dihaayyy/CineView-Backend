@@ -52,6 +52,70 @@ exports.getLoggedInUserProfile = async (req, res) => {
   }
 };
 
+exports.updateUsername = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { username } = req.body;
+
+    if (!username || typeof username !== "string" || username.trim() === "") {
+      return res.status(400).json({ error: "Invalid username" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { username: username.trim() },
+      { new: true, runValidators: true }
+    ).select("username email");
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Username updated successfully",
+      data: updatedUser,
+    });
+  } catch (err) {
+    console.error("Error updating username:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Current and new passwords are required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Current password is incorrect" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    console.error("Error updating password:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 exports.getFavoriteMovies = async (req, res) => {
   try {
     const targetUserId = req.params.id;

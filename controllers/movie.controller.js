@@ -49,10 +49,7 @@ exports.getMoviebyId = async (req, res) => {
   }
 
   try {
-    const movie = await Movie.findById(req.params.id).populate({
-      path: "comments.userId",
-      select: "username",
-    });
+    const movie = await Movie.findById(movieId);
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }
@@ -321,7 +318,10 @@ exports.getCommentsByMovieId = (req, res) => {
 
   // Temukan film berdasarkan ID
   Movie.findById(movieId)
-    .select("comments") // Hanya ambil field comments
+    .populate({
+      path: "comments.userId",
+      select: "username", // Ambil hanya field username dari user
+    })
     .then((movie) => {
       if (!movie) {
         return res.status(404).json({ error: "Movie not found" });

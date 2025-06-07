@@ -49,7 +49,10 @@ exports.getMoviebyId = async (req, res) => {
   }
 
   try {
-    const movie = await Movie.findById(movieId);
+    const movie = await Movie.findById(req.params.id).populate({
+      path: "comments.userId",
+      select: "username",
+    });
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }

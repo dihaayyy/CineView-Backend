@@ -108,7 +108,7 @@ exports.getFavoriteMovies = async (req, res) => {
 exports.addFavoriteMovie = async (req, res) => {
   try {
     const targetUserId = req.params.id;
-    const loggedInUserId = req.user.UserId;
+    const loggedInUserId = req.user.userId;
     if (String(loggedInUserId) !== String(targetUserId)) {
       return res
         .status(403)
@@ -144,7 +144,7 @@ exports.addFavoriteMovie = async (req, res) => {
 
 exports.deleteFavoriteMovies = async (req, res) => {
   try {
-    const { userId: targetUserId, movieId } = req.params;
+    const { id: targetUserId, movieId } = req.params;
     const loggedInUserId = req.user.id;
 
     if (String(loggedInUserId) !== String(targetUserId)) {
@@ -155,18 +155,23 @@ exports.deleteFavoriteMovies = async (req, res) => {
     if (!movieId || !mongoose.Types.ObjectId.isValid(movieId)) {
       return res.status(400).json({ error: "Invalid movie ID" });
     }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      targetUserId,
-      { $pull: { favoriteMovies: movieId } },
-      { new: true, runValidators: true }
-    ).populate("favoriteMovies");
-
-    if (!updatedUser) {
+    const user = await User.findById(targetUserId);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // if Success
+    const movieExists = user.favoriteMovies.some(
+      favMovieId === String(movieId)
+    );
+    if (!movieExists) {
+      return res.status(404).json({ error: "Movie not found in favorites" });
+    }
+    user.favoriteMovies.pull(movieId);
+    await user.save();
+
+    const updatedUser = await User.findById(targetUserId).populate(
+      "favoriteMovies"
+    );
     res.status(200).json({
       success: true,
       message: "Favorite movie removed successfully",

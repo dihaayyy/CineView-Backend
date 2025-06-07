@@ -9,7 +9,7 @@ router.get("/:id", verifyToken, userController.getUserById); // Get user by ID
 router.get("/:id/favorites", verifyToken, userController.getFavoriteMovies); // Get user's favorite movies
 router.post("/:id/favorites", verifyToken, userController.addFavoriteMovie); // Add favorite movie to user
 router.delete(
-  "/:userId/favorites/:id",
+  "/:id/favorites/:movieId",
   verifyToken,
   userController.deleteFavoriteMovies
 ); // Remove favorite movie from user

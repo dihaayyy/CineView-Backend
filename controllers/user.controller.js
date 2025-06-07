@@ -145,7 +145,7 @@ exports.addFavoriteMovie = async (req, res) => {
 exports.deleteFavoriteMovies = async (req, res) => {
   try {
     const { id: targetUserId, movieId } = req.params;
-    const loggedInUserId = req.user.id;
+    const loggedInUserId = req.user.userId;
 
     if (String(loggedInUserId) !== String(targetUserId)) {
       return res
@@ -161,7 +161,7 @@ exports.deleteFavoriteMovies = async (req, res) => {
     }
 
     const movieExists = user.favoriteMovies.some(
-      favMovieId === String(movieId)
+      (favMovieId) => String(favMovieId) === String(movieId)
     );
     if (!movieExists) {
       return res.status(404).json({ error: "Movie not found in favorites" });

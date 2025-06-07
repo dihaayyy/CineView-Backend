@@ -4,17 +4,29 @@ const Movie = require("../models/movie");
 
 // POST /movies - Add a new movie
 exports.addMovie = async (req, res) => {
-  const { title, description, genre, releaseYear, category } = req.body;
-  if (!title || !description || !genre || !releaseYear || !category) {
-    return res.status(400).json({ error: "All fields are required" });
+  const { title, description, genre, releaseYear, category, posterUrl } = req.body;
+  if (
+    !title ||
+    !description ||
+    !genre ||
+    !Array.isArray(genre) ||
+    genre.length === 0 ||
+    !releaseYear ||
+    !category
+  ) {
+    return res.status(400).json({ error: "Missing or invalid fields" });
   }
   try {
     const movie = new Movie({
-      title,
-      description,
-      genre,
+      title: title.trim(),
+      description: description.trim(),
+      genre: genre.map((g) => g.trim()),
       releaseYear,
-      category,
+      category: category.trim(),
+      posterUrl: posterUrl ? posterUrl.trim() : undefined,
+      ratings: [],
+      comments: [],
+      averageRating: 0,
     });
 
     await movie.save(); // ✅ simpan ke MongoDB

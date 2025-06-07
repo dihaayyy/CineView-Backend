@@ -80,7 +80,13 @@ exports.getFavoriteMovies = async (req, res) => {
     console.log("Favorite Movie IDs:", user.favoriteMovies);
 
     // Populate movie details
-    const populatedUser = await user.populate("favoriteMovies");
+    const populatedUser = await user.populate({
+      path: "favoriteMovies",
+      populate: {
+        path: "comments.userId",
+        model: "User",
+      },
+    });
 
     // Jika kosong
     if (

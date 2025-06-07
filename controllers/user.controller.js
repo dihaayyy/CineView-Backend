@@ -55,7 +55,7 @@ exports.getLoggedInUserProfile = async (req, res) => {
 exports.getFavoriteMovies = async (req, res) => {
   try {
     const targetUserId = req.params.id;
-    const loggedInUserId = req.user.id;
+    const loggedInUserId = req.user.userId;
 
     // Cek validitas ObjectId
     if (!mongoose.Types.ObjectId.isValid(targetUserId)) {

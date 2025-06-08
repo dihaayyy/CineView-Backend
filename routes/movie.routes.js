@@ -25,5 +25,6 @@ router.delete(
   verifyToken,
   movieController.deleteComment
 );
+router.get("/top-rated", movieController.getTopRatedMovies);
 
 module.exports = router;

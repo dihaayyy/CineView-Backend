@@ -4,7 +4,8 @@ const Movie = require("../models/movie");
 
 // POST /movies - Add a new movie
 exports.addMovie = async (req, res) => {
-  const { title, description, genre, releaseYear, category, posterUrl } = req.body;
+  const { title, description, genre, releaseYear, category, posterUrl } =
+    req.body;
   if (
     !title ||
     !description ||
@@ -453,5 +454,19 @@ exports.updatePosterUrl = async (req, res) => {
       error: "Failed to update poster URL",
       details: err.message,
     });
+  }
+};
+
+// Finding Top Rated Movies
+exports.getTopRatedMovies = async (req, res) => {
+  try {
+    const movies = await Movie.find().sort({ averageRating: -1 }).limit(7);
+    res.status(200).json({
+      message: "Top rated movies fetched successfully",
+      movies,
+    });
+  } catch (err) {
+    console.error("Get top rated movies error:", err);
+    res.status(500).json({ error: "Failed to fetch top rated movies." });
   }
 };

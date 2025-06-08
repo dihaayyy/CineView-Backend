@@ -460,7 +460,7 @@ exports.updatePosterUrl = async (req, res) => {
 // Finding Top Rated Movies
 exports.getTopRatedMovies = async (req, res) => {
   try {
-    const movies = await Movie.find().sort({ averageRating: -1 }).limit(7);
+    const movies = await Movie.find().sort({ averageRating: -1 }).limit(7).populate('comments.userId');
     res.status(200).json(movies);
   } catch (err) {
     console.error("Get top rated movies error:", err);

@@ -461,10 +461,7 @@ exports.updatePosterUrl = async (req, res) => {
 exports.getTopRatedMovies = async (req, res) => {
   try {
     const movies = await Movie.find().sort({ averageRating: -1 }).limit(7);
-    res.status(200).json({
-      message: "Top rated movies fetched successfully",
-      movies,
-    });
+    res.status(200).json(movies);
   } catch (err) {
     console.error("Get top rated movies error:", err);
     res.status(500).json({ error: "Failed to fetch top rated movies." });

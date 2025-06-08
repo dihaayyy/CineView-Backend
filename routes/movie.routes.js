@@ -5,6 +5,7 @@ const verifyToken = require("../middlewares/auth.middleware");
 
 router.post("/", movieController.addMovie);
 router.get("/", movieController.getAllMovies);
+router.get("/top-rated", movieController.getTopRatedMovies);
 router.get("/:id", movieController.getMoviebyId);
 router.put("/:id", movieController.updateMoviebyId);
 router.put("/:id/poster", movieController.updatePosterUrl);
@@ -25,6 +26,5 @@ router.delete(
   verifyToken,
   movieController.deleteComment
 );
-router.get("/top-rated", movieController.getTopRatedMovies);
 
 module.exports = router;

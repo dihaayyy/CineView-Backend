@@ -21,6 +21,6 @@ router.put(
   verifyToken,
   movieController.updateComment
 );
-router.delete("/:id/comments/:commentId", movieController.deleteComment);
+router.delete("/:id/comments/:commentId", verifyToken, movieController.deleteComment);
 
 module.exports = router;

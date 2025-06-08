@@ -411,13 +411,6 @@ exports.deleteComment = async (req, res) => {
       return res.status(404).json({ error: "Comment not found" });
     }
 
-    // Cek apakah komentar milik user yang login
-    if (movie.comments[commentIndex].userId.toString() !== userId) {
-      return res
-        .status(403)
-        .json({ error: "You can only delete your own comments" });
-    }
-
     // Hapus komentar dari array
     movie.comments.splice(commentIndex, 1);
 
@@ -460,7 +453,10 @@ exports.updatePosterUrl = async (req, res) => {
 // Finding Top Rated Movies
 exports.getTopRatedMovies = async (req, res) => {
   try {
-    const movies = await Movie.find().sort({ averageRating: -1 }).limit(7).populate('comments.userId');
+    const movies = await Movie.find()
+      .sort({ averageRating: -1 })
+      .limit(7)
+      .populate("comments.userId");
     res.status(200).json(movies);
   } catch (err) {
     console.error("Get top rated movies error:", err);

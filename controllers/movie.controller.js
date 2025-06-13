@@ -191,7 +191,7 @@ exports.getRatingsByMovieId = async (req, res) => {
     res.status(200).json({
       movieId: movie._id,
       title: movie.title,
-      averageRating: Math.round(movie.averageRating * 10) / 10,
+      averageRating: parseFloat(movie.averageRating.toFixed(1)),
       totalRatings: movie.ratings.length,
       ratings: movie.ratings.map((r) => ({
         user: r.userId, // ini akan otomatis resolve jadi nama & email jika pakai populate

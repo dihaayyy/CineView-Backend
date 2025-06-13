@@ -50,7 +50,10 @@ exports.getAllMovies = async (req, res) => {
       select: "username",
     });
 
-    res.status(200).json(movies);
+    res.status(200).json({
+      ...movie.toObject(), // ubah ke object biasa
+      averageRating: parseFloat(movie.averageRating.toFixed(1)), // bulatkan
+    });
   } catch (err) {
     console.error("Get all movies error:", err);
     res.status(500).json({ error: "Failed to fetch movies." });
@@ -70,7 +73,10 @@ exports.getMoviebyId = async (req, res) => {
     if (!movie) {
       return res.status(404).json({ error: "Movie not found" });
     }
-    res.json(movie);
+    res.json({
+      ...movie.toObject(), // ubah ke object biasa
+      averageRating: parseFloat(movie.averageRating.toFixed(1)), // bulatkan
+    });
   } catch (err) {
     console.error("Get movie by ID error:", err);
     res.status(500).json({ error: "Server error" });

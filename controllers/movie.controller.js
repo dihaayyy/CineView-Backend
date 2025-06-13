@@ -156,9 +156,9 @@ exports.addMovieRatings = async (req, res) => {
 
     movie.ratings.push({ userId, rating });
 
-    movie.averageRating =
-      movie.ratings.reduce((sum, r) => sum + r.rating, 0) /
-      movie.ratings.length;
+    const total = movie.ratings.reduce((sum, r) => sum + r.rating, 0);
+    const avg = total / movie.ratings.length;
+    movie.averageRating = Math.round(avg * 10) / 10; // Bulatkan ke 1 desimal
 
     await movie.save();
     res.status(200).json({
@@ -191,7 +191,7 @@ exports.getRatingsByMovieId = async (req, res) => {
     res.status(200).json({
       movieId: movie._id,
       title: movie.title,
-      averageRating: movie.averageRating,
+      averageRating: Math.round(movie.averageRating * 10) / 10,
       totalRatings: movie.ratings.length,
       ratings: movie.ratings.map((r) => ({
         user: r.userId, // ini akan otomatis resolve jadi nama & email jika pakai populate
@@ -232,8 +232,8 @@ exports.updateMovieRating = async (req, res) => {
     existing.rating = rating;
     existing.createdAt = new Date(); // Update timestamp
 
-    const sum = movie.ratings.reduce((acc, r) => acc + r.rating, 0);
-    movie.averageRating = sum / movie.ratings.length;
+    const avg = sum / movie.ratings.length;
+    movie.averageRating = Math.round(avg * 10) / 10;
 
     await movie.save();
     res.json({ message: "Rating updated successfully", movie });
@@ -268,7 +268,9 @@ exports.deleteMovieRating = async (req, res) => {
     // Hitung ulang averageRating
     const total = movie.ratings.reduce((sum, r) => sum + r.rating, 0);
     movie.averageRating =
-      movie.ratings.length > 0 ? total / movie.ratings.length : 0;
+      movie.ratings.length > 0
+        ? Math.round((total / movie.ratings.length) * 10) / 10
+        : 0;
 
     await movie.save();
     res.json({ message: "Rating deleted successfully", movie });

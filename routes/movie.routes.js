@@ -4,7 +4,7 @@ const movieController = require("../controllers/movie.controller");
 const verifyToken = require("../middlewares/auth.middleware");
 
 router.post("/", movieController.addMovie);
-router.get("/", movieController.getAllMovies);
+router.get("/all", movieController.getAllMovies);
 router.get("/top-rated", movieController.getTopRatedMovies);
 router.get("/:id", movieController.getMoviebyId);
 router.put("/:id", movieController.updateMoviebyId);
